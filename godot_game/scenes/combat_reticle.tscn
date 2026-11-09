@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://kcd_reticle"]
+
+[ext_resource type="Script" path="res://scripts/combat_reticle.gd" id="1_reticle"]
+
+[node name="CombatReticle" type="Control"]
+custom_minimum_size = Vector2(160, 160)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 160.0
+offset_bottom = 160.0
+mouse_filter = 2
+script = ExtResource("1_reticle")

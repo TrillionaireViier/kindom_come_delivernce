@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kingdom Come: Deliverance — Bohemia 1403 | Official Web & Godot Edition</title>
+  <meta name="description" content="A realistic medieval Bohemia combat & adventure RPG inspired by Kingdom Come: Deliverance. Features authentic 5-point directional swordplay, lockpicking, blacksmithing, and full Godot 4 game engine source.">
+  <link rel="icon" type="image/svg+xml" href="godot_game/icon.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Ambient Ember Canvas -->
+  <canvas id="bgParticlesCanvas"></canvas>
+
+  <!-- Sticky Medieval Header -->
+  <header class="site-header">
+    <a href="#" class="header-brand">
+      <svg viewBox="0 0 128 128" fill="none">
+        <path d="M 64 8 C 96 8 116 16 116 48 C 116 88 64 120 64 120 C 64 120 12 88 12 48 C 12 16 32 8 64 8 Z" fill="#2a1f18" stroke="#d4af37" stroke-width="4"/>
+        <circle cx="64" cy="62" r="16" fill="#8b1e17" stroke="#d4af37" stroke-width="2"/>
+        <path d="M 64 52 L 64 72 M 54 60 L 74 60" stroke="#f7d070" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Kingdom Come</h1>
+        <span>Deliverance • 1403</span>
+      </div>
+    </a>
+
+    <nav class="main-nav">
+      <a href="#combat">Directional Combat</a>
+      <a href="#lockpick">Lockpicking</a>
+      <a href="#pillars">Mechanics</a>
+      <a href="#codex">Codex</a>
+      <a href="#godot-project">Godot 4 Game</a>
+    </nav>
+
+    <button id="audioToggleBtn" class="btn-audio" title="Toggle Medieval Lute & Campfire Audio">
+      <span>🎵</span>
+      <span>Play Medieval Ambience</span>
+    </button>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="skalitz-seal">
+      <svg viewBox="0 0 128 128" width="90" height="90">
+        <path d="M 64 8 C 96 8 116 16 116 48 C 116 88 64 120 64 120 C 64 120 12 88 12 48 C 12 16 32 8 64 8 Z" fill="#8b1e17" stroke="#f7d070" stroke-width="5"/>
+        <path d="M 64 16 C 90 16 106 23 106 50 C 106 82 64 110 64 110 C 64 110 22 82 22 50 C 22 23 38 16 64 16 Z" fill="none" stroke="#d4af37" stroke-width="2" opacity="0.7"/>
+        <g transform="translate(64, 60) rotate(45)">
+          <rect x="-3" y="-45" width="6" height="65" fill="#ffffff"/>
+          <rect x="-14" y="20" width="28" height="4" rx="2" fill="#d4af37"/>
+        </g>
+        <g transform="translate(64, 60) rotate(-45)">
+          <rect x="-3" y="-45" width="6" height="65" fill="#ffffff"/>
+          <rect x="-14" y="20" width="28" height="4" rx="2" fill="#d4af37"/>
+        </g>
+        <circle cx="64" cy="62" r="14" fill="#1a1410" stroke="#f7d070" stroke-width="2"/>
+        <path d="M 64 54 L 64 70 M 56 62 L 72 62" stroke="#f7d070" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <h1>KINGDOM COME</h1>
+    <div class="subtitle">DELIVERANCE • BOHEMIA 1403</div>
+
+    <div class="motto-banner">
+      “Jesus Christ be praised! Henry’s come to see us!”
+    </div>
+
+    <div class="hero-actions">
+      <a href="#combat" class="btn-primary">
+        <span>⚔️</span>
+        <span>Play Web Combat Duel</span>
+      </a>
+      <a href="#lockpick" class="btn-secondary">
+        <span>🔓</span>
+        <span>Rattay Lockpicking</span>
+      </a>
+      <a href="#godot-project" class="btn-secondary">
+        <span>🎮</span>
+        <span>Godot 4 Engine Source</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Interactive Directional Combat Simulator -->
+  <section id="combat" class="feature-section">
+    <div class="section-title">
+      <h2>The 5-Point Directional Combat</h2>
+      <p>Authentic Historical European Martial Arts. Target the 5 directional angles or thrust to the center. Watch for the opponent's windup to trigger a Perfect Block or Master Strike (Riposte).</p>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="simulator-card medieval-frame">
+      <div class="simulator-header">
+        <h3><span>⚔️</span> Skalitz Skirmish: Henry vs. Cuman Raider</h3>
+        <span class="simulator-badge">LIVE BROWSER SIMULATOR</span>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="combatCanvas"></canvas>
+      </div>
+
+      <div class="simulator-instructions">
+        <div><strong>Aim Rose:</strong> Move Mouse into Petal</div>
+        <div><strong>Slash:</strong> Left Click</div>
+        <div><strong>Thrust:</strong> Middle Click / [F]</div>
+        <div><strong>Block / Master Strike:</strong> Right Click / [SPACE]</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Lockpicking Simulator -->
+  <section id="lockpick" class="feature-section">
+    <div class="section-title">
+      <h2>Rattay Lockpicking Minigame</h2>
+      <p>The notorious and rewarding lockpicking system. Move your pick across the iron tumbler to discover the golden sweet spot, then hold [D] to turn the lock mechanism while tracking the rotation.</p>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="simulator-card medieval-frame">
+      <div class="simulator-header">
+        <h3><span>🔓</span> Miller Peshek's Locked Chest</h3>
+        <button id="resetLockpickBtn" class="btn-secondary" style="padding: 6px 16px; font-size: 12px;">Reset Chest</button>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="lockpickCanvas"></canvas>
+      </div>
+
+      <div class="simulator-instructions">
+        <div><strong>Move Cursor:</strong> Search for Golden Sun Orb</div>
+        <div><strong>Hold [D] / Left Mouse:</strong> Rotate Mechanism</div>
+        <div><strong>Reward:</strong> 150 Groschen & Savior Schnapps</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Pillars -->
+  <section id="pillars" class="feature-section">
+    <div class="section-title">
+      <h2>The Pillars of Kingdom Come</h2>
+      <p>No dragons. No magic spells. Just brutal 15th-century historical realism in the heart of the Holy Roman Empire.</p>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="codex-grid">
+      <div class="codex-card medieval-frame">
+        <h4>⚔️ Historical European Martial Arts</h4>
+        <p>Reconstructed from authentic 15th-century combat treatises by master Johannes Liechtenauer. Feints, parries, master strikes (Meisterhau), and stamina management dictate every duel.</p>
+      </div>
+      <div class="codex-card medieval-frame">
+        <h4>🍺 Savior Schnapps & Mortality</h4>
+        <p>No infinite auto-saves. You must drink Savior Schnapps, brewed from nettles and belladonna, sleep in a rented tavern bed, or face the consequences of your mortal decisions.</p>
+      </div>
+      <div class="codex-card medieval-frame">
+        <h4>🔨 The Blacksmith's Craft</h4>
+        <p>Maintain your weapon sharpness at the grindstone wheel. A dull blade bounces off Milanese plate armor, while a razor-sharp edge pierces Gambeson and splits ring mail.</p>
+      </div>
+      <div class="codex-card medieval-frame">
+        <h4>🍗 Hunger, Energy & Reputation</h4>
+        <p>Henry requires sustenance and sleep. Villagers react to your cleanliness, social rank, blood-splattered armor, and speech skill checks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Historical Codex of 1403 -->
+  <section id="codex" class="feature-section">
+    <div class="section-title">
+      <h2>The Codex of Bohemia 1403</h2>
+      <p>Chronicles of the Kingdom, historical figures, martial arts tenets, and survival lore.</p>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="codex-tabs">
+      <button class="codex-tab-btn active" data-target="codex-history">Historical Crisis</button>
+      <button class="codex-tab-btn" data-target="codex-swordplay">5 Master Cuts</button>
+      <button class="codex-tab-btn" data-target="codex-characters">Characters</button>
+      <button class="codex-tab-btn" data-target="codex-locations">Castles & Towns</button>
+      <button class="codex-tab-btn" data-target="codex-alchemy">Savior Schnapps</button>
+    </div>
+
+    <div id="codex-history" class="codex-panel active medieval-frame">
+      <div class="codex-grid">
+        <div class="codex-card">
+          <h4>The Captivity of King Wenceslas IV</h4>
+          <p>Upon the death of Emperor Charles IV in 1378, his son Wenceslas IV inherited the throne of Bohemia. Neglecting imperial affairs in favor of leisure, he was seized and imprisoned by his scheming half-brother, King Sigismund of Hungary.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Sigismund's Cuman Army</h4>
+          <p>Sigismund entered Bohemia without an army of nobles, but with fierce nomadic Cuman mercenaries from the eastern steppes. They swept into silver-rich Skalitz, putting the town and Henry's family to fire and sword.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="codex-swordplay" class="codex-panel medieval-frame">
+      <div class="codex-grid">
+        <div class="codex-card">
+          <h4>1. Zornhau (Wrath Cut)</h4>
+          <p>A diagonal descending blow from the right shoulder. Counters high thrusts and breaks into the opponent's bind with crushing leverage.</p>
+        </div>
+        <div class="codex-card">
+          <h4>2. Krumphau (Crooked Cut)</h4>
+          <p>A step across the line of attack with crossed wrists. Designed to break the Ochs (Ox) guard and strike the opponent's hands.</p>
+        </div>
+        <div class="codex-card">
+          <h4>3. Zwerchhau (Thwart Cut)</h4>
+          <p>A horizontal strike delivered with the short (false) edge under the protection of the crossguard. Nullifies overhead strikes.</p>
+        </div>
+        <div class="codex-card">
+          <h4>4. Schielhau (Squinting Cut)</h4>
+          <p>A false-edge descending strike that simultaneously parries the incoming blow and cuts the enemy's shoulder or neck.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="codex-characters" class="codex-panel medieval-frame">
+      <div class="codex-grid">
+        <div class="codex-card">
+          <h4>Henry of Skalitz (Индржих)</h4>
+          <p>Son of Martin the blacksmith. An ordinary blacksmith's apprentice who survives the slaughter of Skalitz and rises into the retinue of Lord Radzig Kobyla to avenge his parents.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Sir Radzig Kobyla</h4>
+          <p>Hetman of Bohemia and royal burgrave of Skalitz. Loyal vassal to King Wenceslas IV, known for his wisdom, strategic patience, and secret patronage of Henry.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Sir Hans Capon (Ян Птачек)</h4>
+          <p>Young and arrogant heir to the lordship of Rattay. Initially Henry's rival, their tavern brawl and subsequent hunting expedition forge an unbreakable brotherhood.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Captain Bernard</h4>
+          <p>Master-at-arms in Rattay. The stern instructor who teaches Henry the fundamentals of stance, master strikes (Ripostes), and clinching.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="codex-locations" class="codex-panel medieval-frame">
+      <div class="codex-grid">
+        <div class="codex-card">
+          <h4>Silver Skalitz (Stříbrná Skalice)</h4>
+          <p>Prosperous mining hub nestled in the hills of silver ore. Sacked in 1403 by King Sigismund's army under Markvart von Aulitz.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Rattay upon Sasau (Rataje nad Sázavou)</h4>
+          <p>Fortified settlement with twin castles: Pirkstein and the Upper Castle. Safe haven for the refugees of Skalitz under Lord Hanush.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Sasau Monastery (Sázavský klášter)</h4>
+          <p>Benedictine monastery founded by Saint Procopius. Center of medical knowledge, theological disputation, and ancient Slavic liturgy.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="codex-alchemy" class="codex-panel medieval-frame">
+      <div class="codex-grid">
+        <div class="codex-card">
+          <h4>Savior Schnapps (Спасительный Шнапс)</h4>
+          <p>Ingredients: 1x Wine base, 1x Nettle, 2x Belladonna.<br>
+          Brewing: Boil wine, grind nettles and boil for 2 turns. Grind belladonna and add. Distill into flask. Consuming saves game state and restores 35 Health.</p>
+        </div>
+        <div class="codex-card">
+          <h4>Marigold Decoction</h4>
+          <p>Ingredients: 1x Water base, 1x Nettle, 2x Marigold petals.<br>
+          Cures battlefield lacerations, stops arterial bleeding, and slowly heals over time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Godot 4 Game Project Showcase -->
+  <section id="godot-project" class="feature-section">
+    <div class="section-title">
+      <h2>The Godot 4 Game Engine Project</h2>
+      <p>A full, runnable Godot 4.x project is included directly inside this repository under <code>godot_game/</code>.</p>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="godot-guide-box medieval-frame">
+      <h3 style="font-family: var(--font-heading); color: var(--gold-light); margin-bottom: 14px;">Quickstart Instructions</h3>
+      <p style="color: var(--text-muted); margin-bottom: 12px;">Launch the project directly with Godot Engine 4 (macOS, Windows, or Linux):</p>
+      
+      <div class="code-snippet">
+        # Run directly from terminal with Godot 4:<br>
+        godot --path /Users/danilavier/kindom_come_delivernce/godot_game<br><br>
+        # Or open in Godot 4 Editor:<br>
+        godot -e --path /Users/danilavier/kindom_come_delivernce/godot_game
+      </div>
+
+      <h4 style="font-family: var(--font-heading); color: var(--gold-light); margin-top: 24px; margin-bottom: 8px;">In-Game Keyboard & Mouse Controls</h4>
+      <div class="codex-grid" style="margin-top: 14px;">
+        <div class="codex-card">
+          <strong>[W / A / S / D]</strong> Move Henry<br>
+          <strong>[SHIFT]</strong> Sprint (drains Stamina)<br>
+          <strong>[MOUSE MOVE]</strong> Aim 5-Directional Combat Rose
+        </div>
+        <div class="codex-card">
+          <strong>[LEFT CLICK]</strong> Slash from Active Angle<br>
+          <strong>[MIDDLE CLICK / F]</strong> Thrust Attack<br>
+          <strong>[RIGHT CLICK / SPACE]</strong> Block / Master Strike (Riposte)
+        </div>
+        <div class="codex-card">
+          <strong>[E]</strong> Blacksmith Grindstone Minigame<br>
+          <strong>[L]</strong> Lockpick Rattay Chest<br>
+          <strong>[H]</strong> Drink Savior Schnapps / Eat<br>
+          <strong>[I]</strong> Open Satchel Inventory
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-quote">
+      “Kingdom Come: Deliverance — In the shadow of the Holy Roman Empire, honor is forged in blood.”
+    </div>
+    <div class="footer-links">
+      <a href="#combat">Combat</a>
+      <a href="#lockpick">Lockpick</a>
+      <a href="#codex">Codex</a>
+      <a href="https://github.com/TrillionaireViier/kindom_come_delivernce" target="_blank" rel="noopener">GitHub Repository</a>
+    </div>
+    <div class="footer-copy">
+      Developed for TrillionaireViier • Inspired by Warhorse Studios' Kingdom Come: Deliverance.
+    </div>
+  </footer>
+
+  <script src="assets/js/medieval_audio.js"></script>
+  <script src="assets/js/combat_sim.js"></script>
+  <script src="assets/js/lockpick_sim.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

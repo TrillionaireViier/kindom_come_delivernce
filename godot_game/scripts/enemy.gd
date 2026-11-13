@@ -23,6 +23,9 @@ var attack_timer: float = 0.0
 var ai_state_timer: float = 1.0
 
 var is_dead: bool = false
+var is_staggered: bool = false
+var stagger_timer: float = 0.0
+var is_surrendering: bool = false
 var taunt_text: String = ""
 var taunt_timer: float = 0.0
 
@@ -37,12 +40,17 @@ func _process(delta: float) -> void:
 	if is_dead:
 		return
 	
+	if is_staggered:
+		stagger_timer -= delta
+		if stagger_timer <= 0.0:
+			is_staggered = false
+	
 	stamina = minf(max_stamina, stamina + delta * 18.0)
 	
-	if taunt_timer > 0.0:
+	if taunt_timer > 0.0 and not is_surrendering:
 		taunt_timer -= delta
 	
-	if windup_timer > 0.0:
+	if windup_timer > 0.0 and not is_staggered:
 		windup_timer -= delta
 		if windup_timer <= 0.0:
 			_execute_attack()
@@ -50,7 +58,16 @@ func _process(delta: float) -> void:
 	if attack_timer > 0.0:
 		attack_timer -= delta
 	
-	if target and is_instance_valid(target):
+	# If surrendering, check for player interaction [E] to accept yield
+	if is_surrendering:
+		if target and is_instance_valid(target):
+			var dist := (target.global_position - global_position).length()
+			if dist < 80.0 and Input.is_key_pressed(KEY_E):
+				_accept_surrender()
+		queue_redraw()
+		return
+	
+	if target and is_instance_valid(target) and not is_staggered:
 		var to_target := target.global_position - global_position
 		look_dir = to_target.normalized()
 		
@@ -64,7 +81,7 @@ func _process(delta: float) -> void:
 func _ai_decide() -> void:
 	ai_state_timer = randf_range(attack_cooldown_min, attack_cooldown_max)
 	
-	if not target or is_dead:
+	if not target or is_dead or is_staggered or is_surrendering:
 		return
 	
 	var dist := (target.global_position - global_position).length()
@@ -80,15 +97,18 @@ func _ai_decide() -> void:
 		_show_taunt()
 
 func _start_attack_windup() -> void:
+	if is_surrendering or is_dead or is_staggered:
+		return
 	is_winding_up = true
 	windup_timer = 0.45
-	# Choose an attack direction (opposite of player's block, or unexpected)
 	var chosen_dir := randi() % 6
 	guard_direction = chosen_dir
 	
-	# Trigger Henry's Perfect Block visual green shield window!
-	if target and target.reticle:
-		target.reticle.trigger_parry_window(0.4)
+	if target and is_instance_valid(target):
+		if target.has_method("notify_incoming_attack"):
+			target.notify_incoming_attack(guard_direction, guard_direction == 5, 0.45, self)
+		if target.reticle:
+			target.reticle.trigger_parry_window(0.4)
 
 func _execute_attack() -> void:
 	is_winding_up = false
@@ -131,12 +151,34 @@ func receive_stagger(damage: float) -> void:
 	if is_dead:
 		return
 	health = maxf(0.0, health - damage)
-	stamina = maxf(0.0, stamina - 40.0)
+	stamina = maxf(0.0, stamina - 45.0)
 	is_winding_up = false
 	windup_timer = 0.0
-	_show_floating_text("REPOSTE!", Color.GOLD)
+	is_staggered = true
+	stagger_timer = 1.35
+	_show_floating_text("MEISTERHAU RIPOSTE! -" + str(int(damage)), Color.GOLD)
 	if health <= 0.0:
 		_die()
+	elif health < 24.0 and not is_surrendering and randf() < 0.7:
+		_trigger_surrender()
+
+func _trigger_surrender() -> void:
+	is_surrendering = true
+	is_winding_up = false
+	windup_timer = 0.0
+	taunt_text = "Kérlek, ne ölj meg! I yield! [E] Accept Mercy (+Groschen)"
+	taunt_timer = 999.0
+	SoundManager.play("armor_hit", 0.7)
+
+func _accept_surrender() -> void:
+	is_dead = true
+	SoundManager.play("victory", 1.2)
+	enemy_defeated.emit(enemy_name)
+	taunt_text = "Köszönöm! (Groschen surrendered)"
+	taunt_timer = 2.0
+	var tween := create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, 1.8)
+	tween.tween_callback(queue_free)
 
 func _die() -> void:
 	is_dead = true
@@ -165,6 +207,11 @@ func _show_floating_text(txt: String, col: Color) -> void:
 
 func _physics_process(_delta: float) -> void:
 	if is_dead:
+		return
+	
+	if is_surrendering or is_staggered:
+		velocity = velocity.move_toward(Vector2.ZERO, 600.0 * _delta)
+		move_and_slide()
 		return
 	
 	if target and is_instance_valid(target):
@@ -200,10 +247,17 @@ func _draw() -> void:
 	draw_circle(Vector2(0, -4), 9.0, cuman_gold)
 	draw_circle(Vector2(0, -8), 4.0, Color(0.9, 0.8, 0.4)) # Spire tip
 	
-	# Eastern Saber weapon
-	var saber_base := look_dir * 18.0
-	var saber_tip := saber_base + look_dir * (36.0 if not is_winding_up else 20.0)
-	draw_line(saber_base, saber_tip, Color(0.95, 0.95, 1.0), 3.0)
+	# Eastern Saber weapon or Hands Raised in Surrender
+	if is_surrendering:
+		# Hands raised in surrender
+		draw_circle(Vector2(-10, -18), 3.5, cuman_gold)
+		draw_circle(Vector2(10, -18), 3.5, cuman_gold)
+		# Saber dropped on ground
+		draw_line(Vector2(-14, 12), Vector2(16, 16), Color(0.8, 0.8, 0.85), 2.5)
+	else:
+		var saber_base := look_dir * 18.0
+		var saber_tip := saber_base + look_dir * (36.0 if not is_winding_up else 20.0)
+		draw_line(saber_base, saber_tip, Color(0.95, 0.95, 1.0), 3.0)
 	
 	# Health Bar above head
 	var bar_width := 44.0

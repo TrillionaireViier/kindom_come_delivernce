@@ -34,16 +34,22 @@ kindom_come_delivernce/
     │   ├── lockpick.tscn        # Authentic KCD lockpicking minigame
     │   ├── grindstone.tscn      # Blacksmith sharpening wheel minigame
     │   └── ui.tscn              # Parchment HUD, health/stamina/hunger, inventory
+    ├── shaders/
+    │   ├── grindstone_wheel.gdshader        # Sandstone RPM blur, water trough sheen & thermal friction glow
+    │   ├── visor_helmet_overlay.gdshader    # 15th-century Klappvisier eye-slit camera & breath fogging
+    │   └── dirt_blood_accumulation.gdshader # Procedural road mud & arterial blood spatter layering
     └── scripts/
-        ├── sound_manager.gd     # 16-bit PCM procedural sound generator
-        ├── player.gd            # Directional slashes, thrusts, stamina, blocks, ripostes
-        ├── enemy.gd             # Guard matching AI, telegraph windups, taunts
-        ├── combat_reticle.gd    # Dynamic reticle drawing with green shield flash
-        ├── lockpick.gd          # Sweet spot detection, shearline cylinder rotation
-        ├── grindstone.gd        # Wheel speed treadle, blade angle, spark particles
-        ├── ui.gd                # Health, stamina, hunger ("I feel quite hungry"), satchel
-        ├── world.gd             # Arena manager, waves, courtyard rendering
-        └── main_menu.gd         # Menu navigation & sound integration
+        ├── sound_manager.gd         # 16-bit PCM procedural sound generator
+        ├── master_strike_system.gd  # Liechtenauer Meisterhau counters, 4-tier armor mitigation, blade clash
+        ├── survival_system.gd       # Dirt, blood, NPC smell/charisma, localized bleeding wounds, hunger & BAC
+        ├── player.gd                # Directional slashes, thrusts, half-swording, visor mode, Master Strikes
+        ├── enemy.gd                 # Guard matching AI, telegraph windups, Cuman surrender threshold, taunts
+        ├── combat_reticle.gd        # Dynamic reticle drawing with green shield flash
+        ├── lockpick.gd              # Sweet spot detection, shearline cylinder rotation
+        ├── grindstone.gd            # Friction physics, treadle pump, tangential spark kinematics & shader
+        ├── ui.gd                    # Parchment HUD, health/stamina/hunger/charisma, visor shader controller
+        ├── world.gd                 # Arena manager, waves, courtyard rendering, bathhouse wash trough
+        └── main_menu.gd             # Menu navigation & sound integration
 ```
 
 ---
@@ -61,19 +67,23 @@ godot -e --path /Users/danilavier/kindom_come_delivernce/godot_game
 ```
 
 ### In-Game Controls:
-| Action | Key / Input |
-|---|---|
-| **Move Henry** | `W`, `A`, `S`, `D` or Arrow Keys |
-| **Sprint** | `Shift` (drains Stamina) |
-| **Aim 5-Directional Rose** | Move Mouse relative to character |
-| **Slash** | `Left Mouse Button` |
-| **Thrust (Center)** | `Middle Mouse Button` or `F` |
-| **Block / Parry** | `Right Mouse Button` or `Space` |
-| **Master Strike (Riposte)** | Block during the Green Shield flash! |
-| **Blacksmith Grindstone** | `E` |
-| **Rattay Lockpicking** | `L` |
-| **Drink Savior Schnapps / Eat** | `H` |
-| **Open Satchel Inventory** | `I` |
+| Action | Key / Input | Historical Detail |
+|---|---|---|
+| **Move Henry** | `W`, `A`, `S`, `D` or Arrow Keys | Momentum-based locomotion, kicks up Bohemian road mud |
+| **Sprint** | `Shift` (drains Stamina) | Accelerates dirt accumulation in field mud |
+| **5-Point Directional Rose** | Mouse movement | Top, Top-Right, Bottom-Right, Bottom-Left, Top-Left, Thrust |
+| **Slash Strike** | `Left Mouse Button` | Directional cut based on active rose angle |
+| **Thrust (Abstechen)** | `Middle Mouse Button` or `F` | Penetrating point attack |
+| **Block / Guard** | `Right Mouse Button` or `Space` | Directional shield/sword guard |
+| **Master Strike (Meisterhau)** | Block within 0.15s of windup | Cinematic slow-mo frame trap, unblockable riposte (*Zornhau, Krumphau, Zwerchhau, Schielhau, Absetzen*) |
+| **Half-Swording (Halbschwert)** | `T` | Grips sword blade midway; +65% plate piercing & close-quarters leverage |
+| **Klappvisier Helmet Visor** | `V` | Lowers/raises bascinet visor; +Plate defense, realistic eye-slit view & breath condensation |
+| **Bandage Bleeding Wounds** | `C` | Stems arterial blood loss from localized limb trauma |
+| **Bathhouse / Wash Trough** | `B` | Washes dirt and blood away; restores Charisma to baseline |
+| **Blacksmith Grindstone** | `E` | Realistic sandstone friction wheel minigame with spark kinematics |
+| **Rattay Lockpicking** | `L` | Lock cylinder sweet-spot rotation minigame |
+| **Savior Schnapps (Save & Heal)**| `H` | Restores Health & Stamina, tracks blood alcohol content (BAC) |
+| **Open Satchel Inventory** | `I` | Inspect Groschen, weapons, armor layers, and healing supplies |
 
 ---
 

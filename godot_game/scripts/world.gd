@@ -1,6 +1,12 @@
 class_name GameWorld
 extends Node2D
 
+# ====================================================================
+# KINGDOM COME: DELIVERANCE - BOHEMIA 1403 WORLD SIMULATOR
+# Orchestrates Cuman AI, Master Strike frame traps, Directional Rose,
+# Blacksmith Grindstone, Lockpicking, and Historical Bathhouse Hygiene.
+# ====================================================================
+
 const SoundManager = preload("res://scripts/sound_manager.gd")
 const EnemyScene = preload("res://scenes/enemy.tscn")
 
@@ -20,6 +26,14 @@ func _ready() -> void:
 		player.reticle = reticle
 		player.stats_changed.connect(_on_player_stats_changed)
 		player.blocked_attack.connect(_on_player_blocked)
+		if player.has_signal("survival_updated") and ui:
+			player.survival_updated.connect(ui.update_survival)
+		if player.has_signal("visor_toggled") and ui:
+			player.visor_toggled.connect(ui.set_visor)
+		if player.has_signal("half_sword_toggled") and ui:
+			player.half_sword_toggled.connect(ui.set_half_swording)
+		if player.has_signal("master_strike_triggered"):
+			player.master_strike_triggered.connect(_on_master_strike_triggered)
 	
 	if lockpick_overlay:
 		lockpick_overlay.visible = false
@@ -30,23 +44,25 @@ func _ready() -> void:
 		grindstone_overlay.sharpening_complete.connect(_on_sharpening_done)
 		grindstone_overlay.closed.connect(func(): grindstone_overlay.visible = false)
 	
-	# Spawn first enemy
+	# Spawn first Cuman raider
 	_spawn_cuman()
 	
 	if ui:
-		ui.show_notification("⚔️ Quest: Defend Skalitz from King Sigismund's Cumans! [WASD] Move, [Mouse] Directional Combat")
+		ui.show_notification("⚔️ Quest: Defend Skalitz! [WASD] Move | [Mouse] 5-Point Combat | [RMB] Master Strike | [V] Visor")
 
 func _process(_delta: float) -> void:
-	# Keep reticle centered on player on screen
+	# Center reticle on player in canvas space
 	if reticle and player:
 		var screen_pos := player.get_global_transform_with_canvas().origin
 		reticle.position = screen_pos - reticle.size * 0.5
 	
-	# Shortcuts for minigames
+	# Minigame shortcuts
 	if Input.is_key_pressed(KEY_L) and not lockpick_overlay.visible and not grindstone_overlay.visible:
 		_open_lockpick()
 	elif Input.is_key_pressed(KEY_E) and not lockpick_overlay.visible and not grindstone_overlay.visible:
-		_open_grindstone()
+		# Check if near grindstone
+		if player and (player.global_position - Vector2(160, 200)).length() < 120.0:
+			_open_grindstone()
 	elif Input.is_key_pressed(KEY_I):
 		if ui:
 			ui.toggle_inventory()
@@ -62,11 +78,11 @@ func _spawn_cuman() -> void:
 func _on_enemy_defeated(ename: String) -> void:
 	kills_count += 1
 	if ui:
-		ui.groschen += 45
-		ui.show_notification("🏆 " + ename + " defeated! +45 Groschen earned.")
+		ui.groschen += 55
+		ui.show_notification("🏆 " + ename + " neutralized! +55 Groschen looted from saddlebag.")
 	
-	# Spawn next after short delay
-	get_tree().create_timer(2.0).timeout.connect(func():
+	# Spawn next wave enemy
+	get_tree().create_timer(2.2).timeout.connect(func():
 		if is_instance_valid(player) and player.health > 0:
 			_spawn_cuman()
 	)
@@ -77,13 +93,17 @@ func _on_player_stats_changed(hp: float, stamina: float, hunger: float) -> void:
 	
 	if hp <= 0.0:
 		if ui:
-			ui.show_notification("💀 Henry has fallen in battle! Press [R] to Restart.")
+			ui.show_notification("💀 Henry has fallen in battle! Press [R] to reload Savior Schnapps save.")
 		if Input.is_key_pressed(KEY_R):
 			get_tree().reload_current_scene()
 
 func _on_player_blocked(perfect: bool) -> void:
 	if perfect and ui:
-		ui.show_notification("⚡ MASTER STRIKE! (Riposte)")
+		ui.show_notification("⚡ PERFECT DEFENSE!")
+
+func _on_master_strike_triggered(tech_name: String) -> void:
+	if ui:
+		ui.show_notification("⚡ MASTER STRIKE: " + tech_name + "! Unblockable counter riposte!")
 
 func _open_lockpick() -> void:
 	if lockpick_overlay:
@@ -110,10 +130,10 @@ func _on_sharpening_done(sharp_level: float) -> void:
 		player.sword_sharpness = 1.0 + sharp_level * 0.5
 	if ui:
 		ui.sword_sharpness_pct = int(sharp_level * 100.0)
-		ui.show_notification("⚔️ Blade Sharpened to " + str(ui.sword_sharpness_pct) + "%! Damage increased.")
+		ui.show_notification("⚔️ Blade Honed to " + str(ui.sword_sharpness_pct) + "%! Increased cutting & thrust damage.")
 
 func _draw() -> void:
-	# Draw Bohemian Courtyard: Cobblestone ground, wooden palisade fences, torchlight, Skalitz blacksmith stall
+	# Bohemian Castle Courtyard: Cobblestone, Fortress Walls, Blacksmith Forge, Bathhouse Trough
 	var ground_color := Color(0.18, 0.16, 0.13)
 	draw_rect(Rect2(0, 0, 1280, 720), ground_color)
 	
@@ -128,7 +148,7 @@ func _draw() -> void:
 	draw_rect(Rect2(0, 0, 1280, 80), Color(0.3, 0.28, 0.25))
 	draw_line(Vector2(0, 80), Vector2(1280, 80), Color(0.45, 0.4, 0.35), 4.0)
 	
-	# Battlements / crenellations
+	# Crenellations
 	for b in range(0, 1280, 80):
 		draw_rect(Rect2(b, 50, 40, 30), Color(0.22, 0.2, 0.18))
 	
@@ -138,14 +158,19 @@ func _draw() -> void:
 	draw_circle(Vector2(160, 200), 22.0, Color(0.48, 0.45, 0.4)) # Grindstone
 	
 	var font := ThemeDB.fallback_font
-	draw_string(font, Vector2(50, 130), "[E] Blacksmith Grindstone", HORIZONTAL_ALIGNMENT_LEFT, 200, 12, Color(0.9, 0.8, 0.5))
+	draw_string(font, Vector2(45, 130), "[E] Blacksmith Grindstone", HORIZONTAL_ALIGNMENT_LEFT, 200, 12, Color(0.9, 0.8, 0.5))
+	
+	# Bathhouse Water Trough (Key [B] to wash dirt & blood)
+	draw_rect(Rect2(230, 155, 90, 50), Color(0.32, 0.22, 0.14)) # Wooden Tub
+	draw_rect(Rect2(236, 160, 78, 40), Color(0.16, 0.32, 0.48, 0.85)) # Water
+	draw_string(font, Vector2(220, 140), "[B] Bathhouse Trough (Wash)", HORIZONTAL_ALIGNMENT_LEFT, 200, 12, Color(0.65, 0.85, 0.95))
 	
 	# Miller's Locked Chest on right
 	draw_rect(Rect2(1080, 150, 70, 45), Color(0.35, 0.22, 0.12)) # Chest
 	draw_circle(Vector2(1115, 172), 6.0, Color(0.85, 0.7, 0.2)) # Brass lock
 	draw_string(font, Vector2(1040, 135), "[L] Locked Chest", HORIZONTAL_ALIGNMENT_LEFT, 160, 12, Color(0.9, 0.8, 0.5))
 	
-	# Skalitz Banner with Bohemia Two-Tailed Lion / Skalitz Crest
+	# Skalitz Banner with Bohemia Two-Tailed Lion Crest
 	var banner_pos := Vector2(640, 40)
 	draw_rect(Rect2(banner_pos.x - 30, banner_pos.y, 60, 80), Color(0.75, 0.18, 0.14)) # Red banner
 	draw_line(Vector2(banner_pos.x - 30, banner_pos.y + 80), Vector2(banner_pos.x, banner_pos.y + 65), Color(0.18, 0.16, 0.13), 2.0)
